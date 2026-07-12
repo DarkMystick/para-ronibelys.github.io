@@ -319,16 +319,39 @@ body {
     100% { opacity: 0; }
 }
 /* --- Ajustes exclusivos para celulares --- */
+/* --- Ajustes exclusivos para celulares --- */
 @media (max-width: 600px) {
-    /* Achica todo el universo 3D para que quepa en el centro */
-    .galaxia-3d {
-        transform: scale(0.6); /* Ajusta este número (0.5 a 0.7) hasta que te guste cómo queda */
-        transform-origin: center center; /* Asegura que se achique hacia el centro */
+    /* 1. Achica drásticamente el tamaño de todas las frases */
+    .astro {
+        font-size: 11px !important; /* Fuerza un tamaño compacto */
+        text-shadow: 0 0 8px rgba(192, 132, 252, 0.8) !important;
     }
 
-    /* Opcional: Asegura que el núcleo (el centro de luz) no se pierda */
-    .nucleo {
-        width: 30px; /* Ajústalo si es necesario */
-        height: 30px;
+    /* 2. Encoge la nebulosa gigante para que no genere scroll ni tirones */
+    .nebulosa {
+        width: 100vw !important;
+        height: 100vw !important;
+    }
+
+    /* 3. Ajusta el tamaño de la guía superior */
+    .indicador-flecha {
+        font-size: 13px !important;
+        top: 25px;
+        width: 90%;
+    }
+
+    /* 4. Hace más compacto el menú inferior para que no tape las palabras */
+    .gui {
+        bottom: 20px;
+        gap: 8px;
+    }
+
+    .gui p {
+        font-size: 12px !important;
+    }
+
+    .btn-musica {
+        padding: 8px 16px;
+        font-size: 12px;
     }
 }
