@@ -316,3 +316,17 @@ body {
     0% { opacity: 0.6; }
     100% { opacity: 0; }
 }
+/* --- Ajustes exclusivos para celulares --- */
+@media (max-width: 600px) {
+    /* Achica todo el universo 3D para que quepa en el centro */
+    .galaxia-3d {
+        transform: scale(0.6); /* Ajusta este número (0.5 a 0.7) hasta que te guste cómo queda */
+        transform-origin: center center; /* Asegura que se achique hacia el centro */
+    }
+
+    /* Opcional: Asegura que el núcleo (el centro de luz) no se pierda */
+    .nucleo {
+        width: 30px; /* Ajústalo si es necesario */
+        height: 30px;
+    }
+}
