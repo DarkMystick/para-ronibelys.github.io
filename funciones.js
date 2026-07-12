@@ -9,13 +9,8 @@ const emojis = ["💜", "✨", "🪐", "💘", "🌙", "☄️", "🌌", "🌹"]
 let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
 let zoom = 1, autoRotation = 0;
 
-// DETECCIÓN DE CELULAR (Solo para quitar rendimiento pesado, NO cambia tamaños)
-const esCelular = window.innerWidth <= 600;
-
-// Mantenemos una cantidad alta de frases para que no pierda volumen,
-// pero bajamos drásticamente los puntos invisibles que causan el lag.
-const totalPalabras = esCelular ? 140 : 350;  
-const totalPuntos = esCelular ? 150 : 800;   
+const totalPalabras = 350; 
+const totalPuntos = 800; 
 
 function init() {
     if (!galaxia) return;
@@ -29,9 +24,8 @@ function init() {
     for (let i = 0; i < totalPalabras; i++) crearAstro(i, 'frase');
     for (let i = 0; i < totalPuntos; i++) crearAstro(i, 'punto');
 
-    // 3. Estrellas de fondo infinito (Reducidas en celular para salvar la GPU)
-    const fondoEstrellas = esCelular ? 50 : 200;
-    for (let i = 0; i < fondoEstrellas; i++) {
+    // 3. Estrellas de fondo infinito
+    for (let i = 0; i < 200; i++) {
         const fondo = document.createElement('div');
         fondo.className = 'punto';
         const x = (Math.random() - 0.5) * 5000;
@@ -42,9 +36,8 @@ function init() {
         galaxia.appendChild(fondo);
     }
 
-    // 4. Iniciar Meteoritos (Menos cantidad simultánea en móviles para evitar tirones)
-    const maxMeteoritos = esCelular ? 4 : 15;
-    for (let i = 0; i < maxMeteoritos; i++) setTimeout(lanzarMeteorito, Math.random() * 5000);
+    // 4. Iniciar Meteoritos
+    for (let i = 0; i < 15; i++) setTimeout(lanzarMeteorito, Math.random() * 5000);
 }
 
 function crearAstro(i, tipo) {
@@ -54,15 +47,12 @@ function crearAstro(i, tipo) {
         el.className = 'astro';
         el.innerText = Math.random() > 0.3 ? frases[Math.floor(Math.random() * frases.length)] : emojis[Math.floor(Math.random() * emojis.length)];
         el.style.color = `hsl(${270 + Math.random() * 40}, 80%, 85%)`;
-        
-        // Mantenemos tus tamaños originales intactos
         el.style.fontSize = (Math.random() * 12 + 8) + "px";
     } else {
         el.className = 'punto';
         el.style.setProperty('--d', (2 + Math.random() * 4) + 's');
     }
 
-    // Mantenemos la matemática exacta original para que la galaxia tenga el mismo tamaño gigante
     const angle = i * 0.2;
     const distance = 10 * angle;
     const spiralAngle = angle + (Math.floor(Math.random() * 2) * Math.PI); 
@@ -91,7 +81,7 @@ function lanzarMeteorito() {
     setTimeout(() => {
         crearExplosion(x, 400, z);
         met.remove();
-        setTimeout(lanzarMeteorito, Math.random() * 4000);
+        setTimeout(lanzarMeteorito, Math.random() * 3000);
     }, duracion * 1000);
 }
 
@@ -102,10 +92,7 @@ function crearExplosion(x, y, z) {
         nucleo.style.filter = 'blur(10px) brightness(3)';
         setTimeout(() => nucleo.style.filter = 'blur(12px) brightness(1)', 100);
     }
-    
-    // Menos partículas en explosiones para celulares (evita caídas de FPS al explotar)
-    const chispasMax = esCelular ? 3 : 10;
-    for (let i = 0; i < chispasMax; i++) {
+    for (let i = 0; i < 10; i++) {
         const chispa = document.createElement('div');
         chispa.className = 'chispa-explosion';
         chispa.style.setProperty('--ex', `${(Math.random() - 0.5) * 400}px`);
@@ -117,25 +104,14 @@ function crearExplosion(x, y, z) {
     }
 }
 
-// Interacción suave
-if (!esCelular) {
-    document.addEventListener('mousemove', (e) => {
-        targetX = (e.clientX - window.innerWidth / 2) * 0.12;
-        targetY = (e.clientY - window.innerHeight / 2) * -0.12;
-    });
+document.addEventListener('mousemove', (e) => {
+    targetX = (e.clientX - window.innerWidth / 2) * 0.12;
+    targetY = (e.clientY - window.innerHeight / 2) * -0.12;
+});
 
-    document.addEventListener('wheel', (e) => {
-        zoom = Math.min(Math.max(0.3, zoom + e.deltaY * -0.001), 3);
-    });
-} else {
-    // Permite mover la galaxia con el dedo en celular de forma fluida
-    document.addEventListener('touchmove', (e) => {
-        if(e.touches.length === 1) {
-            targetX = (e.touches[0].clientX - window.innerWidth / 2) * 0.08;
-            targetY = (e.touches[0].clientY - window.innerHeight / 2) * -0.08;
-        }
-    }, { passive: true });
-}
+document.addEventListener('wheel', (e) => {
+    zoom = Math.min(Math.max(0.3, zoom + e.deltaY * -0.001), 3);
+});
 
 function animate() {
     if (!galaxia) return;
@@ -155,27 +131,26 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Desactivamos la estela de chispas solo en celulares para eliminar el lag por completo
-if (!esCelular) {
-    document.addEventListener('mousemove', (e) => {
-        if (Math.random() > 0.15) return; 
+// Efecto Estela de Brillo Romántico
+document.addEventListener('mousemove', (e) => {
+    if (Math.random() > 0.15) return; 
 
-        const chispa = document.createElement('div');
-        chispa.className = 'chispa-estela';
-        chispa.style.left = `${e.clientX}px`;
-        chispa.style.top = `${e.clientY}px`;
-        
-        const size = Math.random() * 4 + 2;
-        chispa.style.width = `${size}px`;
-        chispa.style.height = `${size}px`;
-        
-        chispa.style.setProperty('--mx', `${(Math.random() - 0.5) * 60}px`);
-        chispa.style.setProperty('--my', `${(Math.random() - 0.5) * 60 - 40}px`);
+    const chispa = document.createElement('div');
+    chispa.className = 'chispa-estela';
+    
+    chispa.style.left = `${e.clientX}px`;
+    chispa.style.top = `${e.clientY}px`;
+    
+    const size = Math.random() * 4 + 2;
+    chispa.style.width = `${size}px`;
+    chispa.style.height = `${size}px`;
+    
+    chispa.style.setProperty('--mx', `${(Math.random() - 0.5) * 60}px`);
+    chispa.style.setProperty('--my', `${(Math.random() - 0.5) * 60 - 40}px`);
 
-        document.body.appendChild(chispa);
-        setTimeout(() => chispa.remove(), 1200);
-    });
-}
+    document.body.appendChild(chispa);
+    setTimeout(() => chispa.remove(), 1200);
+});
 
 // Inicialización de Eventos Seguros tras la carga del DOM
 document.addEventListener('DOMContentLoaded', () => {
@@ -224,5 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Inicialización inmediata de gráficos
 init();
 animate();
