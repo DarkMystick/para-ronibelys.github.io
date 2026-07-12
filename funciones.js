@@ -9,8 +9,12 @@ const emojis = ["💜", "✨", "🪐", "💘", "🌙", "☄️", "🌌", "🌹"]
 let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
 let zoom = 1, autoRotation = 0;
 
-const totalPalabras = 350; 
-const totalPuntos = 800; 
+// DETECCIÓN DE CELULAR: Ajusta las variables automáticamente si es una pantalla pequeña
+const esCelular = window.innerWidth <= 600;
+
+// Optimización masiva de elementos para eliminar el lag en móviles
+const totalPalabras = esCelular ? 45 : 220;  
+const totalPuntos = esCelular ? 120 : 450;   
 
 function init() {
     if (!galaxia) return;
@@ -24,20 +28,22 @@ function init() {
     for (let i = 0; i < totalPalabras; i++) crearAstro(i, 'frase');
     for (let i = 0; i < totalPuntos; i++) crearAstro(i, 'punto');
 
-    // 3. Estrellas de fondo infinito
-    for (let i = 0; i < 200; i++) {
+    // 3. Estrellas de fondo infinito (Menos en celular para evitar lag)
+    const fondoEstrellas = esCelular ? 60 : 150;
+    for (let i = 0; i < fondoEstrellas; i++) {
         const fondo = document.createElement('div');
         fondo.className = 'punto';
-        const x = (Math.random() - 0.5) * 5000;
-        const y = (Math.random() - 0.5) * 5000;
-        const z = -2000; 
+        const x = (Math.random() - 0.5) * (esCelular ? 2000 : 5000);
+        const y = (Math.random() - 0.5) * (esCelular ? 2000 : 5000);
+        const z = -1500; 
         fondo.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
         fondo.style.opacity = Math.random() * 0.5;
         galaxia.appendChild(fondo);
     }
 
-    // 4. Iniciar Meteoritos
-    for (let i = 0; i < 15; i++) setTimeout(lanzarMeteorito, Math.random() * 5000);
+    // 4. Iniciar Meteoritos (Menos cantidad en móviles)
+    const maxMeteoritos = esCelular ? 5 : 12;
+    for (let i = 0; i < maxMeteoritos; i++) setTimeout(lanzarMeteorito, Math.random() * 5000);
 }
 
 function crearAstro(i, tipo) {
@@ -47,18 +53,31 @@ function crearAstro(i, tipo) {
         el.className = 'astro';
         el.innerText = Math.random() > 0.3 ? frases[Math.floor(Math.random() * frases.length)] : emojis[Math.floor(Math.random() * emojis.length)];
         el.style.color = `hsl(${270 + Math.random() * 40}, 80%, 85%)`;
-        el.style.fontSize = (Math.random() * 12 + 8) + "px";
+        
+        // Letras ligeramente más compactas en móviles
+        const sizeBase = esCelular ? (Math.random() * 6 + 9) : (Math.random() * 12 + 8);
+        el.style.fontSize = sizeBase + "px";
     } else {
         el.className = 'punto';
         el.style.setProperty('--d', (2 + Math.random() * 4) + 's');
     }
 
-    const angle = i * 0.2;
-    const distance = 10 * angle;
+    // COMPRESIÓN DE LA GALAXIA: Controla qué tan abierta es la espiral matemáticamente
+    const factorAngulo = esCelular ? 0.35 : 0.2; 
+    const factorDistancia = esCelular ? 4.5 : 10; 
+    
+    const angle = i * factorAngulo;
+    const distance = factorDistancia * angle;
     const spiralAngle = angle + (Math.floor(Math.random() * 2) * Math.PI); 
-    const x = Math.cos(spiralAngle) * distance + (Math.random() - 0.5) * 200;
-    const y = (Math.random() - 0.5) * 150; 
-    const z = Math.sin(spiralAngle) * distance + (Math.random() - 0.5) * 200;
+    
+    // Límites de dispersión reducidos para celulares (evita que se salga de la pantalla)
+    const dispersionX = esCelular ? 70 : 200;
+    const dispersionY = esCelular ? 80 : 150;
+    const dispersionZ = esCelular ? 70 : 200;
+
+    const x = Math.cos(spiralAngle) * distance + (Math.random() - 0.5) * dispersionX;
+    const y = (Math.random() - 0.5) * dispersionY; 
+    const z = Math.sin(spiralAngle) * distance + (Math.random() - 0.5) * dispersionZ;
 
     const posTransform = `translate3d(${x}px, ${y}px, ${z}px)`;
     el.style.transform = posTransform;
@@ -70,8 +89,8 @@ function lanzarMeteorito() {
     if (!galaxia) return;
     const met = document.createElement('div');
     met.className = 'meteorito';
-    const x = (Math.random() - 0.5) * 2500;
-    const z = (Math.random() - 0.5) * 2000;
+    const x = (Math.random() - 0.5) * (esCelular ? 1200 : 2500);
+    const z = (Math.random() - 0.5) * (esCelular ? 1000 : 2000);
     const duracion = 1 + Math.random() * 1.5;
     met.style.setProperty('--x', `${x}px`);
     met.style.setProperty('--z', `${z}px`);
@@ -81,7 +100,7 @@ function lanzarMeteorito() {
     setTimeout(() => {
         crearExplosion(x, 400, z);
         met.remove();
-        setTimeout(lanzarMeteorito, Math.random() * 3000);
+        setTimeout(lanzarMeteorito, Math.random() * 4000);
     }, duracion * 1000);
 }
 
@@ -92,30 +111,44 @@ function crearExplosion(x, y, z) {
         nucleo.style.filter = 'blur(10px) brightness(3)';
         setTimeout(() => nucleo.style.filter = 'blur(12px) brightness(1)', 100);
     }
-    for (let i = 0; i < 10; i++) {
+    
+    // Menos partículas en explosiones para celulares
+    const chispasMax = esCelular ? 4 : 10;
+    for (let i = 0; i < chispasMax; i++) {
         const chispa = document.createElement('div');
         chispa.className = 'chispa-explosion';
-        chispa.style.setProperty('--ex', `${(Math.random() - 0.5) * 400}px`);
-        chispa.style.setProperty('--ey', `${(Math.random() - 0.5) * 400}px`);
-        chispa.style.setProperty('--ez', `${(Math.random() - 0.5) * 400}px`);
+        chispa.style.setProperty('--ex', `${(Math.random() - 0.5) * 200}px`);
+        chispa.style.setProperty('--ey', `${(Math.random() - 0.5) * 200}px`);
+        chispa.style.setProperty('--ez', `${(Math.random() - 0.5) * 200}px`);
         chispa.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
         galaxia.appendChild(chispa);
         setTimeout(() => chispa.remove(), 800);
     }
 }
 
-document.addEventListener('mousemove', (e) => {
-    targetX = (e.clientX - window.innerWidth / 2) * 0.12;
-    targetY = (e.clientY - window.innerHeight / 2) * -0.12;
-});
+// Eventos táctiles y de mouse optimizados
+if (!esCelular) {
+    document.addEventListener('mousemove', (e) => {
+        targetX = (e.clientX - window.innerWidth / 2) * 0.12;
+        targetY = (e.clientY - window.innerHeight / 2) * -0.12;
+    });
 
-document.addEventListener('wheel', (e) => {
-    zoom = Math.min(Math.max(0.3, zoom + e.deltaY * -0.001), 3);
-});
+    document.addEventListener('wheel', (e) => {
+        zoom = Math.min(Math.max(0.3, zoom + e.deltaY * -0.001), 3);
+    });
+} else {
+    // Soporte básico y suave para touch en celulares sin saturar
+    document.addEventListener('touchmove', (e) => {
+        if(e.touches.length === 1) {
+            targetX = (e.touches[0].clientX - window.innerWidth / 2) * 0.08;
+            targetY = (e.touches[0].clientY - window.innerHeight / 2) * -0.08;
+        }
+    }, { passive: true });
+}
 
 function animate() {
     if (!galaxia) return;
-    autoRotation += 0.08;
+    autoRotation += esCelular ? 0.12 : 0.08; // Rota un poquito más rápido en celular ya que hay menos elementos
     mouseX += (targetX - mouseX) * 0.04;
     mouseY += (targetY - mouseY) * 0.04;
     const rotX = 65 + mouseY;
@@ -131,29 +164,31 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Efecto Estela de Brillo Romántico
-document.addEventListener('mousemove', (e) => {
-    if (Math.random() > 0.15) return; 
+// Efecto Estela (Desactivado en celulares para erradicar el lag por completo)
+if (!esCelular) {
+    document.addEventListener('mousemove', (e) => {
+        if (Math.random() > 0.15) return; 
 
-    const chispa = document.createElement('div');
-    chispa.className = 'chispa-estela';
-    
-    chispa.style.left = `${e.clientX}px`;
-    chispa.style.top = `${e.clientY}px`;
-    
-    const size = Math.random() * 4 + 2;
-    chispa.style.width = `${size}px`;
-    chispa.style.height = `${size}px`;
-    
-    chispa.style.setProperty('--mx', `${(Math.random() - 0.5) * 60}px`);
-    chispa.style.setProperty('--my', `${(Math.random() - 0.5) * 60 - 40}px`);
+        const chispa = document.createElement('div');
+        chispa.className = 'chispa-estela';
+        chispa.style.left = `${e.clientX}px`;
+        chispa.style.top = `${e.clientY}px`;
+        
+        const size = Math.random() * 4 + 2;
+        chispa.style.width = `${size}px`;
+        chispa.style.height = `${size}px`;
+        
+        chispa.style.setProperty('--mx', `${(Math.random() - 0.5) * 60}px`);
+        chispa.style.setProperty('--my', `${(Math.random() - 0.5) * 60 - 40}px`);
 
-    document.body.appendChild(chispa);
-    setTimeout(() => chispa.remove(), 1200);
-});
+        document.body.appendChild(chispa);
+        setTimeout(() => chispa.remove(), 1200);
+    });
+}
 
 // Inicialización de Eventos Seguros tras la carga del DOM
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof nst !== 'undefined') { window.galaxia = document.getElementById('galaxia'); }
     const musica = document.getElementById('musica-fondo');
     const btnMusica = document.getElementById('btn-musica');
     const nucleoClick = document.getElementById('centro-universo');
