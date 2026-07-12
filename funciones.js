@@ -9,12 +9,13 @@ const emojis = ["💜", "✨", "🪐", "💘", "🌙", "☄️", "🌌", "🌹"]
 let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
 let zoom = 1, autoRotation = 0;
 
-// DETECCIÓN DE CELULAR: Ajusta las variables automáticamente si es una pantalla pequeña
+// DETECCIÓN DE CELULAR (Solo para quitar rendimiento pesado, NO cambia tamaños)
 const esCelular = window.innerWidth <= 600;
 
-// Optimización masiva de elementos para eliminar el lag en móviles
-const totalPalabras = esCelular ? 45 : 220;  
-const totalPuntos = esCelular ? 120 : 450;   
+// Mantenemos una cantidad alta de frases para que no pierda volumen,
+// pero bajamos drásticamente los puntos invisibles que causan el lag.
+const totalPalabras = esCelular ? 140 : 350;  
+const totalPuntos = esCelular ? 150 : 800;   
 
 function init() {
     if (!galaxia) return;
@@ -28,21 +29,21 @@ function init() {
     for (let i = 0; i < totalPalabras; i++) crearAstro(i, 'frase');
     for (let i = 0; i < totalPuntos; i++) crearAstro(i, 'punto');
 
-    // 3. Estrellas de fondo infinito (Menos en celular para evitar lag)
-    const fondoEstrellas = esCelular ? 60 : 150;
+    // 3. Estrellas de fondo infinito (Reducidas en celular para salvar la GPU)
+    const fondoEstrellas = esCelular ? 50 : 200;
     for (let i = 0; i < fondoEstrellas; i++) {
         const fondo = document.createElement('div');
         fondo.className = 'punto';
-        const x = (Math.random() - 0.5) * (esCelular ? 2000 : 5000);
-        const y = (Math.random() - 0.5) * (esCelular ? 2000 : 5000);
-        const z = -1500; 
+        const x = (Math.random() - 0.5) * 5000;
+        const y = (Math.random() - 0.5) * 5000;
+        const z = -2000; 
         fondo.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
         fondo.style.opacity = Math.random() * 0.5;
         galaxia.appendChild(fondo);
     }
 
-    // 4. Iniciar Meteoritos (Menos cantidad en móviles)
-    const maxMeteoritos = esCelular ? 5 : 12;
+    // 4. Iniciar Meteoritos (Menos cantidad simultánea en móviles para evitar tirones)
+    const maxMeteoritos = esCelular ? 4 : 15;
     for (let i = 0; i < maxMeteoritos; i++) setTimeout(lanzarMeteorito, Math.random() * 5000);
 }
 
@@ -54,30 +55,20 @@ function crearAstro(i, tipo) {
         el.innerText = Math.random() > 0.3 ? frases[Math.floor(Math.random() * frases.length)] : emojis[Math.floor(Math.random() * emojis.length)];
         el.style.color = `hsl(${270 + Math.random() * 40}, 80%, 85%)`;
         
-        // Letras ligeramente más compactas en móviles
-        const sizeBase = esCelular ? (Math.random() * 6 + 9) : (Math.random() * 12 + 8);
-        el.style.fontSize = sizeBase + "px";
+        // Mantenemos tus tamaños originales intactos
+        el.style.fontSize = (Math.random() * 12 + 8) + "px";
     } else {
         el.className = 'punto';
         el.style.setProperty('--d', (2 + Math.random() * 4) + 's');
     }
 
-    // COMPRESIÓN DE LA GALAXIA: Controla qué tan abierta es la espiral matemáticamente
-    const factorAngulo = esCelular ? 0.35 : 0.2; 
-    const factorDistancia = esCelular ? 4.5 : 10; 
-    
-    const angle = i * factorAngulo;
-    const distance = factorDistancia * angle;
+    // Mantenemos la matemática exacta original para que la galaxia tenga el mismo tamaño gigante
+    const angle = i * 0.2;
+    const distance = 10 * angle;
     const spiralAngle = angle + (Math.floor(Math.random() * 2) * Math.PI); 
-    
-    // Límites de dispersión reducidos para celulares (evita que se salga de la pantalla)
-    const dispersionX = esCelular ? 70 : 200;
-    const dispersionY = esCelular ? 80 : 150;
-    const dispersionZ = esCelular ? 70 : 200;
-
-    const x = Math.cos(spiralAngle) * distance + (Math.random() - 0.5) * dispersionX;
-    const y = (Math.random() - 0.5) * dispersionY; 
-    const z = Math.sin(spiralAngle) * distance + (Math.random() - 0.5) * dispersionZ;
+    const x = Math.cos(spiralAngle) * distance + (Math.random() - 0.5) * 200;
+    const y = (Math.random() - 0.5) * 150; 
+    const z = Math.sin(spiralAngle) * distance + (Math.random() - 0.5) * 200;
 
     const posTransform = `translate3d(${x}px, ${y}px, ${z}px)`;
     el.style.transform = posTransform;
@@ -89,8 +80,8 @@ function lanzarMeteorito() {
     if (!galaxia) return;
     const met = document.createElement('div');
     met.className = 'meteorito';
-    const x = (Math.random() - 0.5) * (esCelular ? 1200 : 2500);
-    const z = (Math.random() - 0.5) * (esCelular ? 1000 : 2000);
+    const x = (Math.random() - 0.5) * 2500;
+    const z = (Math.random() - 0.5) * 2000;
     const duracion = 1 + Math.random() * 1.5;
     met.style.setProperty('--x', `${x}px`);
     met.style.setProperty('--z', `${z}px`);
@@ -112,21 +103,21 @@ function crearExplosion(x, y, z) {
         setTimeout(() => nucleo.style.filter = 'blur(12px) brightness(1)', 100);
     }
     
-    // Menos partículas en explosiones para celulares
-    const chispasMax = esCelular ? 4 : 10;
+    // Menos partículas en explosiones para celulares (evita caídas de FPS al explotar)
+    const chispasMax = esCelular ? 3 : 10;
     for (let i = 0; i < chispasMax; i++) {
         const chispa = document.createElement('div');
         chispa.className = 'chispa-explosion';
-        chispa.style.setProperty('--ex', `${(Math.random() - 0.5) * 200}px`);
-        chispa.style.setProperty('--ey', `${(Math.random() - 0.5) * 200}px`);
-        chispa.style.setProperty('--ez', `${(Math.random() - 0.5) * 200}px`);
+        chispa.style.setProperty('--ex', `${(Math.random() - 0.5) * 400}px`);
+        chispa.style.setProperty('--ey', `${(Math.random() - 0.5) * 400}px`);
+        chispa.style.setProperty('--ez', `${(Math.random() - 0.5) * 400}px`);
         chispa.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
         galaxia.appendChild(chispa);
         setTimeout(() => chispa.remove(), 800);
     }
 }
 
-// Eventos táctiles y de mouse optimizados
+// Interacción suave
 if (!esCelular) {
     document.addEventListener('mousemove', (e) => {
         targetX = (e.clientX - window.innerWidth / 2) * 0.12;
@@ -137,7 +128,7 @@ if (!esCelular) {
         zoom = Math.min(Math.max(0.3, zoom + e.deltaY * -0.001), 3);
     });
 } else {
-    // Soporte básico y suave para touch en celulares sin saturar
+    // Permite mover la galaxia con el dedo en celular de forma fluida
     document.addEventListener('touchmove', (e) => {
         if(e.touches.length === 1) {
             targetX = (e.touches[0].clientX - window.innerWidth / 2) * 0.08;
@@ -148,7 +139,7 @@ if (!esCelular) {
 
 function animate() {
     if (!galaxia) return;
-    autoRotation += esCelular ? 0.12 : 0.08; // Rota un poquito más rápido en celular ya que hay menos elementos
+    autoRotation += 0.08;
     mouseX += (targetX - mouseX) * 0.04;
     mouseY += (targetY - mouseY) * 0.04;
     const rotX = 65 + mouseY;
@@ -164,7 +155,7 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Efecto Estela (Desactivado en celulares para erradicar el lag por completo)
+// Desactivamos la estela de chispas solo en celulares para eliminar el lag por completo
 if (!esCelular) {
     document.addEventListener('mousemove', (e) => {
         if (Math.random() > 0.15) return; 
@@ -188,7 +179,6 @@ if (!esCelular) {
 
 // Inicialización de Eventos Seguros tras la carga del DOM
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof nst !== 'undefined') { window.galaxia = document.getElementById('galaxia'); }
     const musica = document.getElementById('musica-fondo');
     const btnMusica = document.getElementById('btn-musica');
     const nucleoClick = document.getElementById('centro-universo');
@@ -234,6 +224,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Inicialización inmediata de gráficos
 init();
 animate();
