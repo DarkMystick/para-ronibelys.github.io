@@ -1,0 +1,318 @@
+body {
+    margin: 0;
+    background: radial-gradient(circle at center, #1a0033 0%, #05000a 100%);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 80%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.galaxia-3d {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.nebulosa {
+    position: absolute;
+    width: 1200px;
+    height: 1200px;
+    background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 70%);
+    transform: translate(-50%, -50%) rotateX(90deg);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.nucleo {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    border-radius: 50%;
+    filter: blur(12px);
+    box-shadow: 0 0 80px 40px #9d4edd, 0 0 150px 70px #3c096c;
+    animation: latido 4s ease-in-out infinite;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.nucleo:hover {
+    transform: translate(-50%, -50%) scale(1.6);
+    filter: blur(8px) brightness(1.5);
+}
+
+@keyframes latido {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+}
+
+.astro, .punto {
+    position: absolute;
+    transform-style: preserve-3d;
+    backface-visibility: visible !important;
+}
+
+.astro {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(192, 132, 252, 1);
+    white-space: nowrap;
+}
+
+.punto {
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: parpadeo var(--d) linear infinite;
+    box-shadow: 0 0 5px #bc6cff;
+}
+
+@keyframes parpadeo {
+    0%, 100% { opacity: 0.2; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+.meteorito {
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    background: linear-gradient(to top, #fff, #a020f0, transparent);
+    filter: drop-shadow(0 0 10px #fff);
+    animation: viajeMeteorito var(--t) linear forwards;
+}
+
+.chispa-explosion {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #c084fc;
+    border-radius: 50%;
+    animation: estallido 0.8s ease-out forwards;
+}
+
+@keyframes estallido {
+    0% { transform: translate3d(0,0,0) scale(1); opacity: 1; }
+    100% { transform: translate3d(var(--ex), var(--ey), var(--ez)) scale(0); opacity: 0; }
+}
+
+@keyframes viajeMeteorito {
+    0% { transform: translate3d(var(--x), -800px, var(--z)); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translate3d(var(--x), 400px, var(--z)); opacity: 0; }
+}
+
+/* Interfaz gráfica inferior */
+.gui {
+    position: fixed;
+    bottom: 40px; /* Subido un poco para evitar recortes en navegadores modernos */
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-family: 'Georgia', serif;
+    text-align: center;
+    z-index: 100;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.gui p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.btn-musica {
+    background: rgba(157, 78, 221, 0.2);
+    border: 1px solid rgba(192, 132, 252, 0.5);
+    color: #fff;
+    padding: 10px 20px;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(157, 78, 221, 0.2);
+}
+
+.btn-musica:hover {
+    background: rgba(157, 78, 221, 0.4);
+    box-shadow: 0 0 20px rgba(192, 132, 252, 0.6);
+    transform: scale(1.05);
+}
+
+.btn-musica.activo {
+    background: rgba(60, 9, 108, 0.6);
+    border-color: #bc6cff;
+}
+
+/* Estela mágica del mouse */
+.chispa-estela {
+    position: fixed;
+    background: radial-gradient(circle, #fff 20%, #c084fc 60%, transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 0 10px #9d4edd, 0 0 20px #bc6cff;
+    animation: desvanecerEstela 1.2s ease-out forwards;
+}
+
+@keyframes desvanecerEstela {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
+}
+
+/* Indicador de Flecha Superior */
+.indicador-flecha {
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    font-style: italic;
+    text-align: center;
+    z-index: 90;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    text-shadow: 0 0 10px #9d4edd;
+}
+
+.indicador-flecha .flecha {
+    font-size: 24px;
+    margin-top: 5px;
+    color: #bc6cff;
+    animation: rebotar 1.5s infinite ease-in-out;
+}
+
+@keyframes rebotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* Ventana de la Carta (Fondo traslúcido completo) */
+.overlay-carta {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(5, 0, 10, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+
+.overlay-carta.mostrar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Estructura de la Tarjeta con Scroll Integrado */
+.carta {
+    background: linear-gradient(135deg, #1e0d3a 0%, #0d041a 100%);
+    border: 1px solid rgba(188, 108, 255, 0.4);
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 460px;
+    width: 85%;
+    max-height: 75vh;  
+    overflow-y: auto;  
+    box-shadow: 0 0 40px rgba(157, 78, 221, 0.3), inset 0 0 20px rgba(188, 108, 255, 0.1);
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Barra de scroll limpia para la lectura */
+.carta::-webkit-scrollbar {
+    width: 6px;
+}
+.carta::-webkit-scrollbar-thumb {
+    background: rgba(188, 108, 255, 0.4);
+    border-radius: 10px;
+}
+
+.overlay-carta.mostrar .carta {
+    transform: scale(1) translateY(0);
+}
+
+.carta-contenido h2 {
+    color: #fff;
+    font-family: 'Georgia', serif;
+    font-size: 22px;
+    margin-top: 0;
+    text-align: center;
+    text-shadow: 0 0 10px #bc6cff;
+}
+
+.carta-contenido p {
+    color: #e0d5ed;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+.carta-contenido .firma {
+    text-align: right;
+    font-style: italic;
+    color: #bc6cff;
+    font-weight: bold;
+    line-height: 1.4;
+}
+
+/* Botón de cierre */
+#btn-cerrar-carta {
+    display: block;
+    margin: 25px auto 0 auto;
+    background: rgba(157, 78, 221, 0.3);
+    border: 1px solid #bc6cff;
+    color: #fff;
+    padding: 8px 25px;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#btn-cerrar-carta:hover {
+    background: rgba(157, 78, 221, 0.6);
+    box-shadow: 0 0 15px #bc6cff;
+    transform: scale(1.05);
+}
+
+/* Flash de impacto al hacer clic */
+.destello-universal {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #fff;
+    z-index: 999;
+    pointer-events: none;
+    animation: flashFade 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes flashFade {
+    0% { opacity: 0.6; }
+    100% { opacity: 0; }
+}
